@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090e19">
+  <meta name="description" content="GPU Atlas — інтерактивне порівняння характеристик відеокарт NVIDIA та AMD.">
+  <title>GPU Atlas — Порівняння відеокарт</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#090e19;--surface:#111a2a;--surface2:#152034;--border:#28364b;--text:#eaf2ff;--muted:#95a6bf;--teal:#41e3c2;--blue:#6596ff;--violet:#b594ff}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:95px}
+    body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:122px}
+    a{color:var(--teal)}a:hover{color:#92ffe8}
+    .muted{color:var(--muted)}.text-teal{color:var(--teal)}
+    .site-header{background:rgba(9,14,25,.84);border-bottom:1px solid rgba(132,157,190,.14);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);position:sticky;top:0;z-index:30}
+    .brand-mark{display:inline-grid;place-items:center;width:35px;height:35px;border:1px solid rgba(65,227,194,.45);border-radius:11px;background:linear-gradient(135deg,#183b47,#162537);color:var(--teal);font-size:19px;font-weight:900;box-shadow:0 0 24px #24ccab14}
+    .brand-name{font-weight:850;letter-spacing:-.5px;font-size:19px;color:white;text-decoration:none}
+    .site-header .nav-link{color:#a9b8ce!important;font-size:14px}.site-header .nav-link:hover{color:#fff!important}
+    .status-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px #41e3c220}
+    .hero{position:relative;overflow:hidden;padding:75px 0 70px;border-bottom:1px solid rgba(132,157,190,.12)}
+    .hero:before{content:"";pointer-events:none;position:absolute;inset:0;background:radial-gradient(ellipse 48% 75% at 83% 45%,#26497f48,transparent 80%),radial-gradient(ellipse 30% 50% at 32% -20%,#147d7050,transparent 80%)}
+    .hero .container{position:relative;z-index:1}
+    .eyebrow{display:inline-flex;align-items:center;gap:9px;border:1px solid #31545a;background:#1633388f;padding:8px 13px;color:#8bf3dd;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase}
+    .hero h1{font-weight:850;line-height:1.06;font-size:clamp(40px,5.25vw,73px);letter-spacing:-2.9px;max-width:760px;margin:23px 0}
+    .gradient-text{background:linear-gradient(90deg,#78ebd2,#77b4ff);background-clip:text;-webkit-background-clip:text;color:transparent}
+    .hero p{max-width:600px;color:#acbbd1;font-size:16px;line-height:1.8}
+    .hero-stat{padding-right:23px;margin-right:23px;border-right:1px solid #344459}
+    .hero-stat:last-child{border:0;margin:0}.hero-stat strong{display:block;color:#f8fbff;font-size:22px;line-height:1.2}.hero-stat small{color:#8498b3;font-size:12px}
+    .hero-visual{position:relative;min-height:325px;display:grid;place-items:center}
+    .orbit{position:absolute;display:grid;place-items:center;width:290px;height:290px;border-radius:50%;border:1px solid #6585b229;box-shadow:0 0 0 37px #537bb20d,0 0 0 78px #537bb207}
+    .gpu-hero-board{position:relative;transform:rotate(-15deg);width:310px;height:193px;border-radius:22px;background:linear-gradient(140deg,#1a3351,#152136 60%,#0c1829);border:2px solid #4e7294;box-shadow:25px 35px 60px #0009,-14px -5px 65px #207caa28;padding:17px}
+    .gpu-hero-board:after{content:"";position:absolute;left:30px;right:35px;bottom:-12px;height:10px;background:repeating-linear-gradient(90deg,#d6b16c 0 5px,transparent 5px 12px);border-radius:2px}
+    .board-track{border:1px solid #47718833;border-radius:13px;height:100%;display:flex;align-items:center;justify-content:space-evenly;background:repeating-linear-gradient(90deg,transparent 0 17px,#4bb59e11 18px 19px)}
+    .board-fan{width:92px;height:92px;border-radius:50%;background:radial-gradient(circle,#1a3048 0 19%,transparent 20%),repeating-conic-gradient(from 12deg,#6886a4 0deg 25deg,#20344d 26deg 47deg);border:8px solid #142336;box-shadow:0 0 0 3px #6185aa,0 0 25px #2ef2cc12}
+    .board-light{position:absolute;top:7px;left:36px;right:40px;height:3px;border-radius:8px;background:linear-gradient(90deg,transparent,var(--teal),#5687f6,transparent);box-shadow:0 0 14px #41e3c2}
+    .visual-caption{position:absolute;font-size:11px;color:#8af8df;background:#102f35f0;border:1px solid #296968;border-radius:8px;padding:9px 12px;box-shadow:0 10px 30px #0008;letter-spacing:.4px}
+    .visual-caption.top{right:8%;top:9%}.visual-caption.bottom{left:0;bottom:10%;color:#b7c8ff;border-color:#40577f;background:#17233bef}
+    .section-heading{font-size:29px;font-weight:800;letter-spacing:-.9px;margin:0}.section-lead{color:#91a1b9;font-size:14px;margin:7px 0 0}
+    .filter-panel{background:#121c2b;border:1px solid var(--border);border-radius:18px;padding:18px;margin:28px 0 20px}
+    .form-control,.form-select{background-color:#0e1624!important;color:#ebf3ff!important;border:1px solid #334157!important;border-radius:11px!important;min-height:47px;box-shadow:none!important;font-size:14px}
+    .form-control::placeholder{color:#7386a1}.form-control:focus,.form-select:focus{border-color:#52bbaa!important;box-shadow:0 0 0 3px #41e3c219!important}
+    .form-select{color-scheme:dark}
+    .input-search{position:relative}.search-ico{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#7b90a9;pointer-events:none}.input-search input{padding-left:43px}
+    .form-label{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#879bb7;margin-bottom:8px}
+    .gpu-card{height:100%;display:flex;flex-direction:column;background:linear-gradient(155deg,#172235,#111a2a);border:1px solid #2b3b50;border-radius:18px;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s}
+    .gpu-card:hover{transform:translateY(-4px);border-color:#457687;box-shadow:0 22px 40px #0003}.gpu-card.is-selected{border-color:#45d9ba;box-shadow:0 0 0 1px #45d9ba49}
+    .gpu-card-top{height:148px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 100%,#2e856745,transparent 70%),linear-gradient(150deg,#192c36,#111a2a)}
+    .gpu-card[data-brand="AMD"] .gpu-card-top{background:radial-gradient(ellipse at 50% 100%,#d75a4d39,transparent 70%),linear-gradient(150deg,#322338,#111a2a)}
+    .gpu-card[data-brand="NVIDIA"] .gpu-illustration{--glow:#3be1bc}.gpu-card[data-brand="AMD"] .gpu-illustration{--glow:#f5a06e}
+    .gpu-illustration{--glow:#3be1bc;position:relative;width:196px;height:87px;border:2px solid #5c7488;background:linear-gradient(145deg,#273e54,#0e1e2f);border-radius:11px;transform:perspective(400px) rotateX(6deg) rotateY(-9deg) rotateZ(-5deg);box-shadow:13px 14px 0 #09111e,13px 16px 22px #0009,0 0 45px color-mix(in srgb,var(--glow) 15%,transparent);display:flex;align-items:center;justify-content:space-evenly}
+    .gpu-illustration:before{content:"";position:absolute;top:0;left:8%;right:8%;height:2px;background:var(--glow);box-shadow:0 0 12px var(--glow)}
+    .gpu-illustration:after{content:"";position:absolute;left:16px;bottom:-8px;width:91px;height:5px;background:repeating-linear-gradient(90deg,#d8ad61 0 4px,transparent 4px 9px)}
+    .mini-fan{width:58px;height:58px;border-radius:50%;border:6px solid #0d1828;background:radial-gradient(circle,#253c57 0 19%,transparent 20%),repeating-conic-gradient(#7394b5 0 23deg,#243c55 24deg 45deg);box-shadow:0 0 0 2px #46607a}
+    .card-brand{position:absolute;top:13px;left:16px;font-size:10px;letter-spacing:1.2px;font-weight:900;color:#b7c8da}
+    .card-year{position:absolute;right:16px;top:12px;font-size:11px;color:#b0c0d4}
+    .gpu-card-body{padding:21px;flex:1;display:flex;flex-direction:column}
+    .model-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#8da2bc;font-weight:750}
+    .gpu-card h3{font-size:21px;font-weight:800;letter-spacing:-.5px;margin:5px 0 16px}
+    .spec-list{display:grid;grid-template-columns:1fr 1fr;gap:13px 9px;margin:0 0 19px}
+    .spec-list dt{color:#8298b1;font-size:11px;font-weight:550;margin:0 0 3px}.spec-list dd{margin:0;font-size:14px;font-weight:770;color:#eef5ff}
+    .gpu-card-footer{margin-top:auto;border-top:1px solid #304055;padding-top:15px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .tech-chip{font-size:10px;padding:6px 8px;border-radius:6px;border:1px solid #3a5165;color:#aebed2;white-space:nowrap}
+    .btn-choose{background:#29364b;border:1px solid #3f5269;color:#eff7ff;font-size:12px;font-weight:750;padding:9px 13px;border-radius:9px;min-width:117px;transition:.15s}.btn-choose:hover{background:#34475d;border-color:#69b5c6;color:white}.is-selected .btn-choose{background:#173d38;border-color:#4cbba5;color:#8ff7dc}
+    .btn-main{background:linear-gradient(95deg,#57dfbf,#88e2d4);border:0;color:#08202a;font-weight:850;padding:12px 23px;border-radius:11px}.btn-main:hover{background:#9bf6df;color:#09252b}
+    .btn-ghost{background:#1b2940;color:#e4effe;border:1px solid #364864;font-weight:700;border-radius:11px;padding:11px 18px}.btn-ghost:hover{background:#253753;color:white;border-color:#627b9c}
+    .result-counter{font-size:13px;color:#8498b1}
+    .compare-section{padding-top:75px}
+    .panel{background:#121c2d;border:1px solid #2b3a50;border-radius:18px;overflow:hidden}
+    .empty-comparison{text-align:center;padding:45px 16px;color:#8197b2}.empty-comparison .empty-icon{font-size:45px;line-height:1.5;color:#59cfbe}
+    .compare-table{margin:0;color:#e8f1ff;border-color:#293a52;white-space:nowrap;min-width:690px;--bs-table-color:#e8f1ff;--bs-table-bg:transparent;--bs-table-border-color:#28394e}
+    .compare-table th,.compare-table td{padding:15px 19px;vertical-align:middle;border-bottom:1px solid #28394e;font-size:13px}
+    .compare-table th:first-child,.compare-table td:first-child{position:sticky;left:0;z-index:2;background:#121c2d;min-width:185px;width:24%;border-right:1px solid #33465c;color:#8fa5c1;font-weight:650}
+    .compare-table thead th{background:#172439;font-size:13px;color:#eaf5ff;padding:20px 18px}.compare-table thead th:first-child{background:#172439;z-index:3}
+    .compare-table tbody tr:hover td{background:#1b2940}.compare-table tbody tr:hover td:first-child{background:#182538}
+    .compare-table tbody tr:last-child td{border-bottom:0}.compare-table .group-row td{background:#1a2a3c!important;color:#69d7c4!important;font-size:11px;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid #33475d;padding:12px 18px}
+    .compare-table .group-row td:first-child{position:static}
+    .compare-table .best{color:#79f1d7;font-weight:800}.comp-name{font-weight:820;font-size:15px;white-space:normal;min-width:135px}.comp-brand{font-size:10px;color:#8ca0bc;font-weight:650;margin-bottom:5px}
+    .btn-remove{background:none;border:none;color:#92a7c2;padding:4px 6px;border-radius:4px;margin-left:4px}.btn-remove:hover{background:#4f3041;color:#fff}
+    .switch-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#a6b7ce}.switch-row input{accent-color:#59dfc3;width:16px;height:16px}
+    .chart-panel{padding:23px}.metric-tabs{display:flex;gap:5px;flex-wrap:wrap;background:#0c1422;border:1px solid #26354b;padding:5px;border-radius:11px}
+    .metric-tabs button{border:0;background:transparent;color:#849ab5;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:750}.metric-tabs button.active{background:#243b49;color:#7af0d5}
+    .chart-row{display:grid;grid-template-columns:minmax(95px,185px) 1fr 76px;gap:15px;align-items:center;margin:19px 0}.chart-label{font-weight:650;font-size:12px;color:#d4e3f5}.track{height:11px;border-radius:12px;background:#27374d;overflow:hidden}.bar{height:100%;border-radius:12px;transition:width .4s ease;background:linear-gradient(90deg,#27b998,#81eed8)}.chart-row[data-brand="AMD"] .bar{background:linear-gradient(90deg,#ee8067,#ffc19f)}.chart-value{text-align:right;font-size:12px;color:#cbdcf0;font-weight:750}
+    .info-box{border:1px solid #34465c;background:#152234;border-radius:14px;padding:17px 19px;color:#9eafc7;font-size:13px;line-height:1.7}
+    .compare-tray{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(13,22,35,.95);border-top:1px solid #354a5f;backdrop-filter:blur(17px);-webkit-backdrop-filter:blur(17px);box-shadow:0 -12px 40px #0007}
+    .tray-chip{display:inline-flex;align-items:center;gap:6px;background:#26364b;border:1px solid #40526a;border-radius:8px;color:#e2eeff;font-size:12px;font-weight:600;padding:9px 10px;max-width:200px}.tray-chip span{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.tray-chip button{border:0;background:transparent;color:#92aec3;font-size:17px;line-height:1;padding:0 1px}.tray-chip button:hover{color:white}
+    .tray-slot{border:1px dashed #40526a;color:#7286a2;border-radius:8px;font-size:12px;padding:9px 12px;white-space:nowrap}
+    .toast-msg{position:fixed;top:85px;right:20px;z-index:100;max-width:min(400px,calc(100vw - 40px));padding:15px 18px;border-radius:11px;background:#20344a;color:#f3fbff;border:1px solid #4a7492;box-shadow:0 18px 45px #0007;font-size:13px;opacity:0;transform:translateY(-12px);pointer-events:none;transition:opacity .2s,transform .2s}.toast-msg.show{opacity:1;transform:translateY(0)}
+    .footnote{font-size:12px;color:#798fa9;line-height:1.7}.footer{border-top:1px solid #243449;margin-top:80px;padding-top:25px;color:#8596b0;font-size:12px}
+    @media(max-width:991px){.hero{padding:54px 0}.hero-visual{min-height:280px}.gpu-hero-board{transform:rotate(-10deg) scale(.87)}}
+    @media(max-width:767px){.hero h1{letter-spacing:-1.6px}.hero-visual{display:none}.gpu-card-top{height:128px}.filter-panel{padding:15px}.section-heading{font-size:25px}.hero-stat{padding-right:13px;margin-right:13px}.tray-chip{max-width:150px}.compare-tray .btn-main{padding:11px 13px}.compare-table th,.compare-table td{padding:12px}.chart-row{grid-template-columns:minmax(83px,115px) 1fr 57px;gap:8px}}
+    @media(max-width:420px){.gpu-card-body{padding:15px}.gpu-card h3{font-size:19px}.gpu-card-footer{align-items:stretch;flex-direction:column}.btn-choose{width:100%}.tray-chip{max-width:120px}.site-header .nav-links{display:none}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <nav class="container d-flex justify-content-between align-items-center" style="min-height:71px" aria-label="Головне меню">
+    <a href="#top" class="brand-name d-flex align-items-center gap-2"><span class="brand-mark">G</span> GPU<span class="text-teal">Atlas</span></a>
+    <div class="nav-links d-flex align-items-center gap-4"><a class="nav-link p-0" href="#catalog">Каталог</a><a class="nav-link p-0" href="#comparison">Порівняння</a><span class="d-none d-lg-flex align-items-center gap-2 muted" style="font-size:12px"><span class="status-dot"></span> Інтерактивний довідник</span></div>
+  </nav>
+</header>
+<main id="top">
+  <section class="hero">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <div class="eyebrow"><span class="status-dot"></span> Порівняння GPU без зайвого</div>
+          <h1>Обирай потужність.<br><span class="gradient-text">Порівнюй факти.</span></h1>
+          <p>Технічні характеристики відеокарт NVIDIA та AMD в одному місці. Знайди потрібні моделі, обери до трьох і порівняй їх за пам’яттю, пропускною здатністю, частотами та споживанням.</p>
+          <div class="d-flex flex-wrap gap-3 mt-4"><a href="#catalog" class="btn btn-main">Переглянути відеокарти ↗</a><a href="#comparison" class="btn btn-ghost">До порівняння ↓</a></div>
+          <div class="d-flex mt-5">
+            <div class="hero-stat"><strong id="hero-model-count">8</strong><small>моделей</small></div>
+            <div class="hero-stat"><strong>2</strong><small>виробники</small></div>
+            <div class="hero-stat"><strong>14+</strong><small>характеристик</small></div>
+          </div>
+        </div>
+        <div class="col-lg-5"><div class="hero-visual" aria-hidden="true"><div class="orbit"></div><div class="gpu-hero-board"><div class="board-light"></div><div class="board-track"><div class="board-fan"></div><div class="board-fan"></div></div></div><div class="visual-caption top">◈ VRAM · Bandwidth · Power</div><div class="visual-caption bottom">● GPU SPECIFICATIONS / 2026</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="catalog" class="container pt-5">
+    <div class="d-flex align-items-end justify-content-between gap-3 flex-wrap">
+      <div><div class="eyebrow mb-3">Каталог / GPU database</div><h2 class="section-heading">Відеокарти для порівняння</h2><p class="section-lead">Вибери до 3 моделей — вони з'являться у таблиці нижче.</p></div>
+      <div class="result-counter" id="result-count" aria-live="polite"></div>
+    </div>
+    <div class="filter-panel">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5"><label class="form-label" for="search">Пошук моделі</label><div class="input-search"><span class="search-ico" aria-hidden="true">⌕</span><input id="search" type="search" class="form-control" autocomplete="off" placeholder="Наприклад: RTX 5070 або Radeon"></div></div>
+        <div class="col-6 col-md-2"><label class="form-label" for="brand">Виробник</label><select id="brand" class="form-select"><option value="all">Всі бренди</option><option value="NVIDIA">NVIDIA</option><option value="AMD">AMD</option></select></div>
+        <div class="col-6 col-md-2"><label class="form-label" for="memory">Відеопам'ять</label><select id="memory" class="form-select"><option value="all">Будь-яка</option><option value="8">8 ГБ</option><option value="12">12 ГБ</option><option value="16">16 ГБ</option></select></div>
+        <div class="col-md-3"><label class="form-label" for="sort">Сортування</label><select id="sort" class="form-select"><option value="new">Спочатку нові</option><option value="memory">За VRAM ↓</option><option value="bandwidth">За пропускною здатністю ↓</option><option value="power">За споживанням ↑</option><option value="name">За назвою</option></select></div>
+      </div>
+    </div>
+    <div id="cards" class="row g-4" aria-live="polite"></div>
+    <div id="no-results" class="d-none empty-comparison panel mt-3"><div class="empty-icon">⌕</div><h3 class="h5 text-white">Нічого не знайдено</h3><p class="mb-3">Спробуй іншу назву або очисть фільтри.</p><button class="btn btn-ghost" id="reset-filters">Очистити фільтри</button></div>
+  </section>
+
+  <section id="comparison" class="container compare-section">
+    <div class="d-flex justify-content-between align-items-end gap-3 flex-wrap mb-4">
+      <div><div class="eyebrow mb-3">Comparison / Side by side</div><h2 class="section-heading">Порівняння характеристик</h2><p class="section-lead">Числа поряд — помітні відмінності з першого погляду.</p></div>
+      <label class="switch-row"><input type="checkbox" id="diff-only"> Показати тільки відмінності</label>
+    </div>
+    <div id="compare-content"></div>
+    <div class="mt-4" id="chart-wrapper" style="display:none">
+      <div class="panel chart-panel"><div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4"><div><h3 class="h5 fw-bold mb-1">Візуальне зіставлення</h3><p class="section-lead mb-0">Порівнюй один параметр між вибраними моделями.</p></div><div id="metric-tabs" class="metric-tabs" aria-label="Оберіть характеристику"><button class="active" data-metric="vram" type="button">VRAM</button><button data-metric="bandwidth" type="button">Пропускна здатність</button><button data-metric="power" type="button">Потужність</button></div></div><div id="chart"></div></div>
+    </div>
+    <div class="info-box mt-4"><strong class="text-white">Важливо:</strong> більший обсяг VRAM або вища пропускна здатність пам'яті не гарантують більше FPS. Кількість CUDA-ядер NVIDIA і потокових процесорів AMD не можна безпосередньо порівнювати. Потужність плати (TGP/TBP) — це не загальне споживання ПК. Характеристики відповідають референсним/типовим настільним моделям; параметри партнерських версій можуть відрізнятися. Для реальної продуктивності дивись незалежні тести в однакових умовах.</div>
+  </section>
+</main>
+<footer class="container footer"><div class="d-flex flex-wrap justify-content-between gap-3"><div><strong class="text-white">GPU<span class="text-teal">Atlas</span></strong> — навчальний проєкт на HTML + Bootstrap + JavaScript.</div><div>Дані: <a href="https://www.nvidia.com/en-us/geforce/graphics-cards/" target="_blank" rel="noopener noreferrer">NVIDIA</a> · <a href="https://www.amd.com/en/products/specifications/graphics.html" target="_blank" rel="noopener noreferrer">AMD</a> | Без сервера та бази даних.</div></div><div class="footnote mt-2">Довідкові характеристики, не ціни та не результати бенчмарків. Всі моделі в каталозі — для настільних комп'ютерів.</div></footer>
+
+<div class="compare-tray"><div class="container py-3 d-flex align-items-center justify-content-between gap-3"><div class="flex-grow-1" style="min-width:0"><div class="d-flex align-items-center gap-2 mb-2"><strong style="font-size:12px">Вибрані відеокарти</strong><span class="muted" id="selection-counter" style="font-size:11px">0/3</span></div><div class="d-flex gap-2 flex-wrap" id="selected-tray"></div></div><div class="d-flex gap-2 align-items-center"><button id="clear-selection" type="button" class="btn btn-ghost d-none d-sm-inline-block" style="font-size:12px">Очистити</button><button id="go-compare" type="button" class="btn btn-main" style="white-space:nowrap;font-size:12px">Порівняти ↑</button></div></div></div>
+<div id="toast" class="toast-msg" role="status" aria-live="polite"></div>
+
+<script>
+  "use strict";
+  // Додавай відеокарти тут. Дані з офіційних довідників NVIDIA та AMD.
+  // Всі моделі — desktop/reference. Частоти й споживання конкретних AIB-карт можуть відрізнятися.
+  const GPUS = [
+    {id:"rtx3060",name:"GeForce RTX 3060",brand:"NVIDIA",year:2021,architecture:"Ampere",vram:12,memoryType:"GDDR6",bus:192,bandwidth:360,boost:1777,cores:3584,coreType:"CUDA",power:170,psu:550,pcie:"4.0 x16",av1:false,upscale:"DLSS Super Resolution",source:"https://www.nvidia.com/en-us/geforce/graphics-cards/30-series/rtx-3060-3060ti/"},
+    {id:"rtx4060",name:"GeForce RTX 4060",brand:"NVIDIA",year:2023,architecture:"Ada Lovelace",vram:8,memoryType:"GDDR6",bus:128,bandwidth:272,boost:2460,cores:3072,coreType:"CUDA",power:115,psu:550,pcie:"4.0 x8",av1:true,upscale:"DLSS 3 (Frame Generation)",source:"https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/"},
+    {id:"rtx4070s",name:"GeForce RTX 4070 SUPER",brand:"NVIDIA",year:2024,architecture:"Ada Lovelace",vram:12,memoryType:"GDDR6X",bus:192,bandwidth:504,boost:2475,cores:7168,coreType:"CUDA",power:220,psu:650,pcie:"4.0 x16",av1:true,upscale:"DLSS 3 (Frame Generation)",source:"https://www.nvidia.com/en-us/geforce/graphics-cards/40-series/"},
+    {id:"rtx5070",name:"GeForce RTX 5070",brand:"NVIDIA",year:2025,architecture:"Blackwell",vram:12,memoryType:"GDDR7",bus:192,bandwidth:672,boost:2510,cores:6144,coreType:"CUDA",power:250,psu:650,pcie:"5.0 x16",av1:true,upscale:"DLSS 4 (Multi Frame Generation)",source:"https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-family/"},
+    {id:"rtx5070ti",name:"GeForce RTX 5070 Ti",brand:"NVIDIA",year:2025,architecture:"Blackwell",vram:16,memoryType:"GDDR7",bus:256,bandwidth:896,boost:2450,cores:8960,coreType:"CUDA",power:300,psu:750,pcie:"5.0 x16",av1:true,upscale:"DLSS 4 (Multi Frame Generation)",source:"https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5070-family/"},
+    {id:"rx7800xt",name:"Radeon RX 7800 XT",brand:"AMD",year:2023,architecture:"RDNA 3",vram:16,memoryType:"GDDR6",bus:256,bandwidth:624,boost:2430,cores:3840,coreType:"Stream",power:263,psu:700,pcie:"4.0 x16",av1:true,upscale:"AMD FSR",source:"https://www.amd.com/en/products/graphics/desktops/radeon/7000-series/amd-radeon-rx-7800-xt.html"},
+    {id:"rx9060xt",name:"Radeon RX 9060 XT 16GB",brand:"AMD",year:2025,architecture:"RDNA 4",vram:16,memoryType:"GDDR6",bus:128,bandwidth:320,boost:3130,cores:2048,coreType:"Stream",power:160,psu:450,pcie:"5.0 x16",av1:true,upscale:"AMD FSR 4",source:"https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9060xt.html"},
+    {id:"rx9070xt",name:"Radeon RX 9070 XT",brand:"AMD",year:2025,architecture:"RDNA 4",vram:16,memoryType:"GDDR6",bus:256,bandwidth:640,boost:2970,cores:4096,coreType:"Stream",power:304,psu:750,pcie:"5.0 x16",av1:true,upscale:"AMD FSR 4",source:"https://www.amd.com/en/products/graphics/desktops/radeon/9000-series/amd-radeon-rx-9070xt.html"}
+  ];
+
+  const $ = id => document.getElementById(id);
+  const num = value => new Intl.NumberFormat("uk-UA").format(value);
+  const getGpu = id => GPUS.find(g => g.id === id);
+  const PARAM_KEY = "gpu-atlas-selected-v1";
+  const allowedIds = new Set(GPUS.map(g => g.id));
+  const urlSelection = new URLSearchParams(window.location.search).get("gpus");
+  let initial = null;
+  if (urlSelection !== null) initial = urlSelection.split(",");
+  else { try { initial = JSON.parse(localStorage.getItem(PARAM_KEY)); } catch (_) {} }
+  if (!Array.isArray(initial)) initial = ["rtx4060","rtx5070","rx9060xt"];
+  let selected = [...new Set(initial.filter(id => allowedIds.has(id)))].slice(0,3);
+  let metric = "vram";
+  let toastTimeout;
+
+  function toast(message){
+    $("toast").textContent = message;
+    $("toast").classList.add("show");
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => $("toast").classList.remove("show"),2900);
+  }
+
+  function toggleSelect(id){
+    if(selected.includes(id)) selected=selected.filter(value=>value!==id);
+    else if(selected.length>=3){toast("Можна обрати максимум 3 відеокарти. Спочатку прибери одну з вибраних.");return;}
+    else selected.push(id);
+    try{localStorage.setItem(PARAM_KEY,JSON.stringify(selected));}catch(_){}
+    renderAll();
+  }
+
+  function filterGpu(g){
+    const q = $("search").value.trim().toLocaleLowerCase("uk-UA");
+    return (g.name+" "+g.brand+" "+g.architecture).toLocaleLowerCase("uk-UA").includes(q)
+      && ($("brand").value === "all" || g.brand === $("brand").value)
+      && ($("memory").value === "all" || g.vram === Number($("memory").value));
+  }
+  function sortGpu(a,b){
+    const key = $("sort").value;
+    if(key === "memory") return b.vram-a.vram || b.bandwidth-a.bandwidth;
+    if(key === "bandwidth") return b.bandwidth-a.bandwidth;
+    if(key === "power") return a.power-b.power;
+    if(key === "name") return a.name.localeCompare(b.name,"uk");
+    return b.year-a.year || a.name.localeCompare(b.name,"uk");
+  }
+
+  function renderCards(){
+    const items=GPUS.filter(filterGpu).sort(sortGpu);
+    $("result-count").textContent=`Знайдено: ${items.length} із ${GPUS.length}`;
+    $("no-results").classList.toggle("d-none",items.length>0);
+    $("cards").innerHTML=items.map(g=>{
+      const checked=selected.includes(g.id);
+      return `<div class="col-md-6 col-xl-4">
+        <article class="gpu-card ${checked?'is-selected':''}" data-brand="${g.brand}">
+          <div class="gpu-card-top"><span class="card-brand">${g.brand}</span><span class="card-year">${g.year}</span>
+            <div class="gpu-illustration" aria-hidden="true"><i class="mini-fan"></i><i class="mini-fan"></i></div>
+          </div>
+          <div class="gpu-card-body">
+            <span class="model-eyebrow">${g.architecture} · Desktop</span><h3>${g.name}</h3>
+            <dl class="spec-list">
+              <div><dt>Відеопам'ять</dt><dd>${g.vram} ГБ ${g.memoryType}</dd></div>
+              <div><dt>Пропускна здатність</dt><dd>${num(g.bandwidth)} ГБ/с</dd></div>
+              <div><dt>Частота Boost</dt><dd>${num(g.boost)} МГц</dd></div>
+              <div><dt>Потужність плати</dt><dd>${g.power} Вт</dd></div>
+            </dl>
+            <div class="gpu-card-footer"><span class="tech-chip">PCIe ${g.pcie}</span>
+              <button type="button" class="btn-choose" data-select="${g.id}" aria-pressed="${checked}">${checked?'✓ Обрано':'+ Порівняти'}</button>
+            </div>
+          </div>
+        </article>
+      </div>`;
+    }).join("");
+  }
+
+  function renderTray(){
+    $("selection-counter").textContent=`${selected.length}/3`;
+    $("selected-tray").innerHTML=selected.map(id=>{
+      const g=getGpu(id);
+      return `<div class="tray-chip"><span>${g.name}</span><button type="button" data-remove="${id}" aria-label="Видалити ${g.name} з порівняння">×</button></div>`;
+    }).join("") + Array.from({length:3-selected.length},()=>`<span class="tray-slot d-none d-lg-inline">+ Додати GPU</span>`).join("");
+    $("go-compare").disabled=selected.length===0;
+    $("clear-selection").disabled=selected.length===0;
+  }
+
+  const TABLE_GROUPS=[
+    {title:"Загальні відомості",rows:[
+      {label:"Виробник",key:"brand"},{label:"Рік виходу",key:"year"},{label:"Архітектура",key:"architecture"},{label:"PCI Express",key:"pcie",fmt:v=>`PCIe ${v}`}
+    ]},
+    {title:"Відеопам'ять",rows:[
+      {label:"Обсяг VRAM",key:"vram",fmt:v=>`${v} ГБ`,best:"max"},
+      {label:"Тип пам'яті",key:"memoryType"},
+      {label:"Шина пам'яті",key:"bus",fmt:v=>`${v} біт`},
+      {label:"Пропускна здатність",key:"bandwidth",fmt:v=>`${num(v)} ГБ/с`,best:"max"}
+    ]},
+    {title:"Графічний процесор",rows:[
+      {label:"Boost-частота (до)",key:"boost",fmt:v=>`${num(v)} МГц`},
+      {label:"Обчислювальні ядра*",key:"cores",fmt:(v,g)=>`${num(v)} ${g.coreType}`}
+    ]},
+    {title:"Живлення та технології",rows:[
+      {label:"Потужність плати (TGP/TBP)",key:"power",fmt:v=>`${v} Вт`},
+      {label:"Рекомендований БЖ",key:"psu",fmt:v=>`${v} Вт`},
+      {label:"AV1 апаратне кодування",key:"av1",fmt:v=>v?"Так":"Ні"},
+      {label:"Апскейлінг",key:"upscale"}
+    ]}
+  ];
+
+  function renderComparison(){
+    const gpus=selected.map(getGpu).filter(Boolean);
+    if(gpus.length===0){
+      $("compare-content").innerHTML=`<div class="panel empty-comparison"><div class="empty-icon">▦</div><h3 class="h5 text-white">Немає вибраних відеокарт</h3><p>Натисни «Порівняти» на картках у каталозі.</p><a class="btn btn-ghost mt-2" href="#catalog">Перейти до каталогу ↑</a></div>`;
+      $("chart-wrapper").style.display="none";
+      return;
+    }
+    const diffOnly=$("diff-only").checked;
+    const groupsHTML=TABLE_GROUPS.map(group=>{
+      const rows=group.rows.filter(r=>!diffOnly||new Set(gpus.map(g=>String(g[r.key]))).size>1);
+      if(!rows.length) return "";
+      return `<tr class="group-row"><td colspan="${gpus.length+1}">${group.title}</td></tr>`+rows.map(r=>{
+        const max=r.best==="max"&&gpus.length>1?Math.max(...gpus.map(g=>g[r.key])):null;
+        return `<tr><td>${r.label}</td>${gpus.map(g=>{
+          const value=g[r.key];
+          const cell=r.fmt?r.fmt(value,g):String(value);
+          return `<td class="${max!==null&&value===max?'best':''}">${cell}${max!==null&&value===max?' <span aria-label="Найвище значення">✦</span>':''}</td>`;
+        }).join("")}</tr>`;
+      }).join("");
+    }).join("");
+    $("compare-content").innerHTML=`<div class="panel"><div class="table-responsive"><table class="table compare-table"><caption class="visually-hidden">Порівняння характеристик вибраних відеокарт</caption><thead><tr><th scope="col">Характеристика</th>${gpus.map(g=>`<th scope="col"><div class="d-flex align-items-start justify-content-between gap-1"><div><div class="comp-brand">${g.brand}</div><div class="comp-name">${g.name}</div></div><button type="button" class="btn-remove" data-remove="${g.id}" aria-label="Прибрати ${g.name}">×</button></div></th>`).join("")}</tr></thead><tbody>${groupsHTML||`<tr><td colspan="${gpus.length+1}" class="text-center">Усі значення збігаються</td></tr>`}</tbody></table></div><div class="p-3 footnote">✦ — найбільше значення серед вибраних. Це не означає найвищу продуктивність в іграх. * CUDA-ядра і Stream Processors мають різну архітектуру та не є еквівалентними.</div></div><div class="d-flex flex-wrap gap-2 mt-3">${gpus.map(g=>`<a class="btn btn-ghost" style="font-size:12px;padding:9px 12px" href="${g.source}" target="_blank" rel="noopener noreferrer">${g.name}: офіційні характеристики ↗</a>`).join("")}</div>`;
+    $("chart-wrapper").style.display="block";
+    renderChart();
+  }
+
+  function renderChart(){
+    const list=selected.map(getGpu).filter(Boolean);
+    const defs={vram:{unit:"ГБ",key:"vram"},bandwidth:{unit:"ГБ/с",key:"bandwidth"},power:{unit:"Вт",key:"power"}};
+    const {unit,key}=defs[metric];
+    const maximum=Math.max(1,...list.map(g=>g[key]));
+    $("chart").innerHTML=list.map(g=>`<div class="chart-row" data-brand="${g.brand}"><div class="chart-label">${g.name}</div><div class="track"><div class="bar" style="width:${(g[key]/maximum*100).toFixed(2)}%"></div></div><div class="chart-value">${num(g[key])} ${unit}</div></div>`).join("");
+    document.querySelectorAll("[data-metric]").forEach(btn=>{
+      const active=btn.dataset.metric===metric;
+      btn.classList.toggle("active",active);
+      btn.setAttribute("aria-pressed",String(active));
+    });
+  }
+
+  function renderAll(){renderCards();renderTray();renderComparison();}
+  ["search","brand","memory","sort"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",renderCards));
+  $("diff-only").addEventListener("change",renderComparison);
+  $("reset-filters").addEventListener("click",()=>{$("search").value="";$("brand").value="all";$("memory").value="all";$("sort").value="new";renderCards();});
+  $("clear-selection").addEventListener("click",()=>{selected=[];try{localStorage.setItem(PARAM_KEY,"[]");}catch(_){}renderAll();});
+  $("go-compare").addEventListener("click",()=>$("comparison").scrollIntoView({behavior:"smooth",block:"start"}));
+  document.addEventListener("click",event=>{
+    const select=event.target.closest("[data-select]");
+    const remove=event.target.closest("[data-remove]");
+    const metricButton=event.target.closest("[data-metric]");
+    if(select)toggleSelect(select.dataset.select);
+    if(remove)toggleSelect(remove.dataset.remove);
+    if(metricButton){metric=metricButton.dataset.metric;renderChart();}
+  });
+  $("hero-model-count").textContent=String(GPUS.length);
+  renderAll();
+</script>
+</body>
+</html>
